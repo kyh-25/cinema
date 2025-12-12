@@ -16,6 +16,15 @@ public class DirectorId implements Serializable {
     @Column(name = "director_name", nullable = false, length = 50)
     private String directorName;
 
+    public DirectorId() {
+
+    }
+    public DirectorId(Integer id, String d) {
+        this.movieId = id;
+        this.directorName = d;
+    }
+
+
     public Integer getMovieId() {
         return movieId;
     }

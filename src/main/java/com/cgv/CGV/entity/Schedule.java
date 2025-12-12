@@ -1,5 +1,6 @@
 package com.cgv.CGV.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
@@ -15,8 +16,9 @@ public class Schedule {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "movie_id", nullable = false)
+    @JsonIgnore
     private Movie movie;
-
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "screen_id", nullable = false)
     private Screen screen;

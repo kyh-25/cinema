@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>상영관 추가</title>
+</head>
+<body>
+
+<h1>상영관 추가</h1>
+
+<form th:action="@{/admin/screens/add}" method="post">
+
+    <label>영화관 선택</label>
+    <select name="theaterId" required>
+        <option value="">-- 선택 --</option>
+        <option th:each="t : ${theaters}"
+                th:value="${t.id}"
+                th:text="${t.name}"></option>
+    </select>
+    <br/><br/>
+
+    <label>상영관 이름</label>
+    <input type="text" name="name" placeholder="예: 1관, IMAX관" required />
+    <br/><br/>
+
+    <label>좌석 행 수</label>
+    <input type="number" name="rows" min="1" required />
+    <br/><br/>
+
+    <label>좌석 열 수</label>
+    <input type="number" name="cols" min="1" required />
+    <br/><br/>
+
+    <button type="submit">등록</button>
+</form>
+
+<div th:if="${param.success}">
+    <strong>상영관이 성공적으로 추가되었습니다.</strong>
+</div>
+
+</body>
+</html>

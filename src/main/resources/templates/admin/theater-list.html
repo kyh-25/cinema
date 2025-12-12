@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>영화관 목록</title>
+</head>
+<body>
+
+<h2>영화관 목록</h2>
+
+<table border="1">
+    <tr>
+        <th>ID</th>
+        <th>영화관명</th>
+        <th>주소</th>
+    </tr>
+
+    <tr th:each="t : ${theaters}">
+        <td th:text="${t.id}"></td>
+        <td th:text="${t.name}"></td>
+        <td th:text="${t.address}"></td>
+    </tr>
+</table>
+
+<br>
+<a href="/admin/theater/add">영화관 추가하기</a>
+
+</body>
+</html>

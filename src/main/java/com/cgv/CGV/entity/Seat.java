@@ -16,6 +16,14 @@ public class Seat {
     @Column(name = "seat_type")
     private Integer seatType;
 
+    public Seat() {
+    }
+    public Seat(Screen screen, Integer rowNo, Integer colNo, Integer seatType) {
+        this.screen = screen;
+        this.id = new SeatId(rowNo, colNo, screen.getId());
+        this.seatType = seatType;
+    }
+
     public SeatId getId() {
         return id;
     }
@@ -39,5 +47,6 @@ public class Seat {
     public void setSeatType(Integer seatType) {
         this.seatType = seatType;
     }
+
 
 }

@@ -3,6 +3,8 @@ package com.cgv.CGV.entity;
 import jakarta.persistence.*;
 
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalTime;
 
 @Entity
 @Table(name = "review")
@@ -28,7 +30,7 @@ public class Review {
     private Integer rating;
 
     @Column(name = "created_at")
-    private Instant createdAt;
+    private LocalDate createdAt;
 
     public ReviewId getId() {
         return id;
@@ -70,11 +72,11 @@ public class Review {
         this.rating = rating;
     }
 
-    public Instant getCreatedAt() {
+    public LocalDate getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(Instant createdAt) {
+    public void setCreatedAt(LocalDate createdAt) {
         this.createdAt = createdAt;
     }
 

@@ -16,6 +16,14 @@ public class MoviegenreId implements Serializable {
     @Column(name = "genre", nullable = false, length = 50)
     private String genre;
 
+    public MoviegenreId() {
+
+    }
+    public MoviegenreId(Integer id, String g) {
+        this.movieId = id;
+        this.genre = g;
+    }
+
     public Integer getMovieId() {
         return movieId;
     }

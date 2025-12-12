@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalTime;
 
 @Getter
 @Setter
@@ -36,6 +38,6 @@ public class Reservation {
     private Integer amount;
 
     @Column(name = "date")
-    private Instant date;
+    private LocalDate date;
 
 }

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>상영 일정 추가</title>
+</head>
+<body>
+
+<h1>상영 일정 추가</h1>
+
+<!-- 에러 메시지 -->
+<div th:if="${errorMessage}">
+    <p style="color:red" th:text="${errorMessage}"></p>
+</div>
+
+<!-- 성공 메시지 -->
+<div th:if="${param.success}">
+    <p style="color:green">상영 일정이 등록되었습니다.</p>
+</div>
+
+<form th:action="@{/admin/schedule/add}" th:object="${form}" method="post">
+
+    <label>영화</label>
+    <select th:field="*{movieId}" required>
+        <option value="">-- 영화 선택 --</option>
+        <option th:each="m : ${movies}"
+                th:value="${m.id}"
+                th:text="${m.title}"></option>
+    </select>
+    <br/><br/>
+
+    <label>상영관</label>
+    <select th:field="*{screenId}" required>
+        <option value="">-- 상영관 선택 --</option>
+        <option th:each="s : ${screens}"
+                th:value="${s.id}"
+                th:text="${s.theater.name + ' - ' + s.name}"></option>
+    </select>
+    <br/><br/>
+
+    <label>상영일</label>
+    <input type="date" th:field="*{date}" required />
+    <br/><br/>
+
+    <label>시작 시간</label>
+    <input type="time" th:field="*{startTime}" required />
+    <br/><br/>
+
+    <label>티켓 가격</label>
+    <input type="number" th:field="*{price}" min="0" required />
+    <br/><br/>
+
+    <button type="submit">등록</button>
+
+</form>
+
+</body>
+</html>

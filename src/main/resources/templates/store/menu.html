@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>매점 메뉴</title>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 30px;
+            background-color: #f4f7f9;
+            color: #333;
+            text-align: center;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            color: #f0ad4e; /* 매점 테마색: 주황색 */
+            border-bottom: 3px solid #f0ad4e;
+            padding-bottom: 10px;
+            margin-bottom: 30px;
+            font-size: 28px;
+            display: inline-block;
+        }
+
+        /* 테이블 스타일 */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            background-color: white;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        thead {
+            background-color: #f0ad4e; /* 주황색 헤더 */
+            color: white;
+        }
+
+        th {
+            padding: 12px 10px;
+            text-align: center;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        tbody tr {
+            transition: background-color 0.2s;
+        }
+
+        tbody tr:nth-child(even) {
+            background-color: #fffaf0; /* 연한 주황색 줄무늬 */
+        }
+
+        tbody tr:hover {
+            background-color: #ffe0b2; /* 마우스 오버 시 강조 */
+        }
+
+        td {
+            padding: 10px;
+            text-align: center;
+            border-bottom: 1px solid #eee;
+            font-size: 15px;
+        }
+
+        /* 폼 요소 스타일 */
+        input[type="number"] {
+            width: 60px;
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            text-align: center;
+            font-size: 15px;
+        }
+
+        button[type="submit"] {
+            padding: 6px 15px;
+            background-color: #5cb85c; /* 구매 버튼은 초록색으로 강조 */
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+        button[type="submit"]:hover {
+            background-color: #4cae4c;
+        }
+
+        /* 테이블 내 폼 스타일 (구조적 이슈 회피) */
+        table form {
+            display: contents; /* 폼이 테이블 레이아웃을 깨지 않도록 설정 */
+        }
+
+        /* 재고 부족 시 강조 */
+        .sold-out {
+            color: #d9534f; /* 붉은색 */
+            font-weight: bold;
+        }
+
+        /* 가격 강조 */
+        .price {
+            font-weight: bold;
+            color: #007bff;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>🍿 매점 메뉴</h2>
+
+    <table>
+        <thead>
+        <tr>
+            <th>음식명</th>
+            <th>가격</th>
+            <th>재고</th>
+            <th>수량</th>
+            <th>구매</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        <tr th:each="s : ${menu}">
+            <td th:text="${s.food.name}"></td>
+            <td class="price" th:text="${#numbers.formatDecimal(s.food.price, 0, 'COMMA', 0, 'POINT')} + '원'"></td>
+            <td th:class="${s.stock == 0 ? 'sold-out' : ''}" th:text="${s.stock == 0 ? '재고 없음' : s.stock}"></td>
+
+            <form action="/store/order" method="post">
+                <input type="hidden" name="theaterId" th:value="${s.theater.id}">
+                <input type="hidden" name="foodId" th:value="${s.food.id}">
+
+                <td>
+                    <input type="number" name="qty" min="1"
+                           th:max="${s.stock}"
+                           th:disabled="${s.stock == 0}"
+                           value="1">
+                </td>
+
+                <td>
+                    <button type="submit" th:disabled="${s.stock == 0}">
+                        구매
+                    </button>
+                </td>
+            </form>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+</body>
+</html>

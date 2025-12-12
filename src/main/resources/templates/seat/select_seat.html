@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>좌석 선택</title>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 30px;
+            background-color: #f4f7f9;
+            color: #333;
+            text-align: center;
+        }
+
+        /* 메인 컨테이너 */
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            color: #e50914;
+            border-bottom: 2px solid #e50914;
+            padding-bottom: 10px;
+            margin-bottom: 30px;
+        }
+
+        /* 오류 메시지 */
+        .error-message {
+            color: white;
+            background-color: #d9534f;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        /* 스크린 영역 강조 */
+        .screen {
+            background-color: #333;
+            color: white;
+            padding: 15px 0;
+            margin: 30px auto;
+            width: 80%; /* 스크린 너비 */
+            border-radius: 5px;
+            font-size: 1.2em;
+            letter-spacing: 2px;
+        }
+
+        /* 좌석 레이아웃 */
+        .seat-map-container {
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            display: inline-block; /* 맵을 중앙 정렬 */
+        }
+        .seat-row {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 8px;
+        }
+        .seat-wrapper {
+            display: flex;
+            align-items: center;
+        }
+
+        /* 개별 좌석 스타일 */
+        .seat {
+            width: 35px;
+            height: 35px;
+            margin: 3px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 0.75em;
+            border-radius: 6px;
+            font-weight: bold;
+            transition: all 0.2s;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .available {
+            background-color: #f0f8ff; /* 연한 하늘색 */
+            border: 1px solid #007bff;
+            color: #007bff;
+            cursor: pointer;
+        }
+        .available:hover {
+            background-color: #d0e8ff;
+        }
+
+        .booked {
+            background-color: #ccc;
+            border: 1px solid #999;
+            color: #777;
+            cursor: not-allowed;
+            text-decoration: line-through;
+        }
+        .selected {
+            background-color: #e50914; /* CGV 레드 */
+            color: white;
+            border: 1px solid #a3060f;
+            transform: scale(1.05); /* 선택 시 확대 효과 */
+        }
+
+        /* 버튼 스타일 */
+        button[type="submit"] {
+            margin-top: 30px;
+            padding: 12px 25px;
+            background-color: #e50914;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button[type="submit"]:hover {
+            background-color: #a3060f;
+        }
+    </style>
+</head>
+
+<body>
+<div class="container">
+    <h2>좌석 선택</h2>
+
+    <div th:if="${error}" class="error-message">
+        <p th:text="${error}">잠시후 다시해주세요</p>
+    </div>
+
+    <div class="screen">SCREEN</div>
+
+    <form action="/reservation/book" method="post">
+        <input type="hidden" name="scheduleId" th:value="${scheduleId}">
+        <input type="hidden" name="selectedSeatRow" id="selectedSeatRow">
+        <input type="hidden" name="selectedSeatCol" id="selectedSeatCol">
+        <input type="hidden" name="user" th:value="${session.loginUser}">
+
+        <div class="seat-map-container">
+            <div th:each="row : ${seatMap}" class="seat-row">
+                <div class="seat-wrapper">
+                    <span th:each="seat : ${row}">
+                        <span th:if="${seat.reserved == false}"
+                              th:id="'seat-' + ${seat.rowNo} + '-' + ${seat.colNo}"
+                              class="seat available"
+                              th:text="${seat.rowNo} + '-' + ${seat.colNo}"
+                              th:onclick="'selectSeat(' + ${seat.rowNo} + ','+ ${seat.colNo} + ')'">
+                        </span>
+
+                        <span th:if="${seat.reserved == true}"
+                              class="seat booked"
+                              th:text="${seat.rowNo} + '-' + ${seat.colNo}">
+                        </span>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <button type="submit">예매하기</button>
+    </form>
+</div>
+
+<script>
+    let selectedSeatElement = null; // 선택된 좌석의 DOM 요소를 저장할 변수
+
+    function selectSeat(row, col) {
+        // ID 생성 시 rowNo와 colNo 사이에 하이픈(-)을 추가하여 JS와 HTML ID를 일치시킵니다.
+        const currentSeatId = "seat-" + row + "-" + col;
+        const currentSeatElement = document.getElementById(currentSeatId);
+
+        // 이미 선택된 좌석이 있다면, 선택 해제합니다.
+        if (selectedSeatElement) {
+            selectedSeatElement.classList.remove("selected");
+        }
+
+        // 현재 좌석을 선택 상태로 만듭니다.
+        currentSeatElement.classList.add("selected");
+        selectedSeatElement = currentSeatElement;
+
+        // Hidden input 값 업데이트
+        document.getElementById("selectedSeatCol").value = col;
+        document.getElementById("selectedSeatRow").value = row;
+    }
+</script>
+
+</body>
+</html>

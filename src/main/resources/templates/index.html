@@ -1,10 +1,168 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
+    <title> 영화 메인 | CGV</title>
     <meta charset="UTF-8">
-    <title>Title</title>
+
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f7f9;
+            color: #333;
+        }
+        header {
+            background-color: #e50914; /* CGV나 Netflix를 연상시키는 붉은색 */
+            padding: 15px 30px;
+            margin: -20px -20px 30px -20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        header h1 {
+            color: white;
+            margin: 0;
+            font-size: 28px;
+            text-align: center;
+        }
+        .user-section {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 20px;
+        }
+        .user-section p {
+            margin-right: 15px;
+            font-weight: bold;
+        }
+        .user-section a {
+            text-decoration: none;
+            color: #007bff;
+            padding: 5px 10px;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+        .user-section a:hover {
+            background-color: #e9ecef;
+        }
+
+        /* 매점 버튼 스타일 */
+        .store-button-container {
+            margin: 20px 0;
+            text-align: center;
+        }
+        .store-button-container a {
+            padding: 12px 25px;
+            background-color: #f0ad4e; /* 주황색 계열 */
+            color: white;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        .store-button-container a:hover {
+            background-color: #ec971f;
+        }
+
+        /* 영화 목록 공통 */
+        h2 {
+            border-bottom: 2px solid #e50914;
+            padding-bottom: 5px;
+            margin-top: 40px;
+            color: #333;
+        }
+        .movie-list-item {
+            background-color: white;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .movie-info h3 {
+            color: #e50914;
+            margin-top: 0;
+            margin-bottom: 5px;
+        }
+        .movie-info p {
+            margin: 3px 0;
+            font-size: 14px;
+        }
+        .movie-actions a {
+            display: inline-block;
+            background-color: #007bff;
+            color: white;
+            padding: 8px 15px;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        .movie-actions a:hover {
+            background-color: #0056b3;
+        }
+    </style>
 </head>
 <body>
-<h2>hello high garden!!!</h2>
+
+<header>
+    <h1> 영화 예매 시스템</h1>
+</header>
+
+<div class="user-section">
+    <div th:if="${session.loginUser}">
+        <p th:text="'환영합니다, ' + ${session.loginUser.name} + '님'"></p>
+        <a th:href="@{/mypage}">마이페이지</a>
+        <a th:href="@{/logout}">로그아웃</a>
+    </div>
+
+    <div th:unless="${session.loginUser}">
+        <a th:href="@{/login}">로그인</a>
+    </div>
+</div>
+
+<div class="store-button-container">
+    <a th:href="@{/store/select}">
+        매점
+    </a>
+</div>
+
+<h2>무비차트 TOP 3 (인기순)</h2>
+
+<div th:if="${popularMovies.isEmpty()}">
+    <p>이번 주 인기 영화가 없습니다.</p>
+</div>
+
+<div th:each="movie, stat : ${popularMovies}">
+    <div th:if="${stat.index < 3}" class="movie-list-item">
+        <div class="movie-info">
+            <h3 th:text="${stat.count} + '. ' + ${movie.title}"></h3>
+            <p th:text="${movie.description}"></p>
+        </div>
+        <div class="movie-actions">
+            <a th:href="@{/movie/{id}(id=${movie.id})}">상세 보기</a>
+        </div>
+    </div>
+</div>
+
+<h2>전체 상영 예정 영화</h2>
+<div th:if="${#lists.isEmpty(movies)}">
+    <p>이번 달 상영 예정 영화가 없습니다.</p>
+</div>
+
+<div th:each="movie : ${movies}" class="movie-list-item">
+    <div class="movie-info">
+        <h3 th:text="${movie.title}"></h3>
+        <p th:text="'러닝타임: ' + ${movie.runningTime} + '분'"></p>
+        <p th:text="'개봉일: ' + ${movie.releaseDate}"></p>
+    </div>
+    <div class="movie-actions">
+        <a th:href="@{/movie/{id}(id=${movie.id})}">상세 보기</a>
+    </div>
+</div>
+
 </body>
 </html>

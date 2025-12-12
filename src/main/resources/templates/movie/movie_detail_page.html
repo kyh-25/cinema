@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title th:text="${movie.title}">Movie Detail</title>
+
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f7f9;
+            color: #333;
+        }
+        header {
+            background-color: #e50914; /* 주요 색상: 레드 */
+            color: white;
+            padding: 25px 30px;
+            margin: -20px -20px 30px -20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-bottom-left-radius: 10px;
+            border-bottom-right-radius: 10px;
+        }
+        header h1 {
+            margin: 0 0 10px 0;
+            font-size: 32px;
+        }
+        header p {
+            margin: 5px 0;
+            font-size: 16px;
+        }
+        hr {
+            border: 0;
+            border-top: 1px solid #ddd;
+            margin: 20px 0;
+        }
+
+        /* 섹션 스타일 */
+        section {
+            background-color: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+        section h2 {
+            border-bottom: 2px solid #e50914;
+            padding-bottom: 5px;
+            color: #e50914;
+            margin-top: 0;
+        }
+
+        /* 목록 스타일 (장르, 감독) */
+        ul {
+            list-style: none;
+            padding: 0;
+            margin: 10px 0;
+            display: flex; /* 가로 정렬 */
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        li {
+            background-color: #f0f0f0;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            color: #555;
+            font-weight: bold;
+        }
+
+        /* 리뷰 섹션 */
+        .review-item {
+            border: 1px solid #e0e0e0;
+            margin-bottom: 15px;
+            padding: 15px;
+            border-radius: 6px;
+            background-color: #fafafa;
+        }
+        .review-item strong {
+            color: #333;
+        }
+        .review-item small {
+            color: #888;
+        }
+        .review-item p {
+            margin-top: 5px;
+            line-height: 1.4;
+        }
+
+        /* 예약 섹션 (날짜, 영화관, 일정) */
+        #dateForm, #theaterSection, #scheduleSection {
+            background-color: #fff3e0; /* 예약 섹션 배경색 강조 */
+            border: 2px solid #ff9800; /* 주황색 테두리 */
+        }
+
+        select, button[type="button"] {
+            padding: 10px 15px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+            margin-right: 10px;
+        }
+        button[type="button"] {
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+            border: none;
+            transition: background-color 0.3s;
+        }
+        button[type="button"]:hover {
+            background-color: #0056b3;
+        }
+
+        /* 동적 로드 목록 (영화관, 일정) */
+        #theaterList, #scheduleList {
+            list-style: none;
+            padding: 10px 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        #theaterList button, #scheduleList a {
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background-color 0.3s;
+        }
+        #theaterList button {
+            background-color: #e0f7fa; /* 영화관 버튼 색상 */
+            color: #00838f;
+            border: 1px solid #b2ebf2;
+        }
+        #theaterList button:hover {
+            background-color: #b2ebf2;
+        }
+        #scheduleList a {
+            background-color: #c8e6c9; /* 일정 링크 색상 */
+            color: #2e7d32;
+            border: 1px solid #a5d6a7;
+            font-weight: bold;
+        }
+        #scheduleList a:hover {
+            background-color: #a5d6a7;
+        }
+
+    </style>
+</head>
+<body>
+
+<header>
+    <h1 th:text="${movie.title}">영화 제목</h1>
+    <p th:text="${movie.description}"></p>
+    <p>러닝타임: <span th:text="${movie.runningTime}"></span>분 | 등급: <span th:text="${movie.ageRating}"></span></p>
+</header>
+
+<hr/>
+
+<section>
+    <h2>장르 정보</h2>
+    <div th:if="${movieGenres.isEmpty()}">
+        <p>등록된 장르 정보가 없습니다.</p>
+    </div>
+    <ul th:unless="${movieGenres.isEmpty()}">
+        <li th:each="mg : ${movieGenres}" th:text="${mg.id.genre}">액션</li>
+    </ul>
+</section>
+
+<hr/>
+
+<section>
+    <h2>감독 정보</h2>
+    <div th:if="${directors.isEmpty()}">
+        <p>등록된 감독 정보가 없습니다.</p>
+    </div>
+    <ul th:unless="${directors.isEmpty()}">
+        <li th:each="dir : ${directors}" th:text="${dir.id.directorName}">봉준호</li>
+    </ul>
+</section>
+
+<hr/>
+
+<section>
+    <h2>리뷰 (<span th:text="${reviews.size()}">0</span>건)</h2>
+    <div th:if="${reviews.isEmpty()}">
+        <p>작성된 리뷰가 없습니다.</p>
+    </div>
+    <div th:unless="${reviews.isEmpty()}">
+        <div th:each="review : ${reviews}" class="review-item">
+            <p>
+                <strong>작성자: </strong> <span th:text="${review.user.name}">사용자 이름</span>
+                | <strong>평점: </strong> <span th:text="${review.rating} + '점'">5점</span>
+                | <small th:text="${#temporals.format(review.createdAt, 'yyyy-MM-dd HH:mm')}"></small>
+            </p>
+            <p th:text="${review.content}">리뷰 내용</p>
+        </div>
+    </div>
+</section>
+
+<hr/>
+
+<section>
+    <h2>🍿 상영 및 예매 정보</h2>
+
+    <form id="dateForm">
+        <select name="date" id="selectedDate">
+            <option value="">날짜를 선택하세요</option>
+            <option th:each="date : ${availableDates}"
+                    th:value="${date}"
+                    th:text="${#temporals.format(date, 'yyyy년 MM월 dd일 (E)')}">
+            </option>
+        </select>
+        <button type="button" onclick="loadTheaters()">조회</button>
+    </form>
+</section>
+
+<section id="theaterSection" style="display:none;">
+    <h2>상영 영화관</h2>
+    <ul id="theaterList">
+    </ul>
+</section>
+
+<section id="scheduleSection" style="display:none;">
+    <h2>상영 일정</h2>
+    <ul id="scheduleList">
+    </ul>
+</section>
+
+<script th:inline="javascript">
+
+    const movieId = [[${movie.id}]];
+
+    function loadTheaters() {
+        const date = document.getElementById('selectedDate').value;
+
+        // 날짜 선택 유효성 검사
+        if (!date) {
+            alert("상영 날짜를 먼저 선택해 주세요.");
+            return;
+        }
+
+        fetch(`/api/schedule/theaters?movieId=${movieId}&date=${date}`)
+            .then(res => {
+                if (!res.ok) {
+                    throw new Error('네트워크 응답 오류');
+                }
+                return res.json();
+            })
+            .then(data => {
+                const section = document.getElementById('theaterSection');
+                const list = document.getElementById('theaterList');
+                list.innerHTML = '';
+
+                if (data.length === 0) {
+                    list.innerHTML = '<li>해당 날짜에 상영 가능한 영화관이 없습니다.</li>';
+                } else {
+                    data.forEach(t => {
+                        // 영화관 버튼에 데이터 속성으로 이름 저장 (선택된 영화관 강조를 위해)
+                        const li = document.createElement('li');
+                        li.innerHTML = `<button data-theater-id="${t.id}" onclick="loadSchedules(this, ${t.id})">${t.name}</button>`;
+                        list.appendChild(li);
+                    });
+                }
+                section.style.display = 'block';
+                document.getElementById('scheduleSection').style.display = 'none'; // 새 조회 시 일정 초기화
+            })
+            .catch(error => console.error("영화관 로드 실패:", error));
+    }
+
+    // 💡 선택된 영화관 버튼을 인자로 받아 활성화 상태를 표시합니다.
+    function loadSchedules(buttonElement, theaterId) {
+        const date = document.getElementById('selectedDate').value;
+
+        // 버튼 활성화 스타일 변경
+        document.querySelectorAll('#theaterList button').forEach(btn => {
+            btn.style.backgroundColor = '#e0f7fa'; // 기본 색상
+            btn.style.color = '#00838f';
+        });
+        buttonElement.style.backgroundColor = '#00838f'; // 선택된 버튼 강조
+        buttonElement.style.color = 'white';
+
+        fetch(`/api/schedule/list?movieId=${movieId}&theaterId=${theaterId}&date=${date}`)
+            .then(res => {
+                if (!res.ok) {
+                    throw new Error('네트워크 응답 오류');
+                }
+                return res.json();
+            })
+            .then(data => {
+                const section = document.getElementById('scheduleSection');
+                const list = document.getElementById('scheduleList');
+                list.innerHTML = '';
+
+                if (data.length === 0) {
+                    list.innerHTML = '<li>선택된 영화관에 상영 일정이 없습니다.</li>';
+                } else {
+                    data.forEach(s => {
+                        const li = document.createElement('li');
+                        // 남은 좌석수 계산
+                        const remainingSeats = s.totalSeats - s.reservedSeats;
+                        const statusClass = remainingSeats > 10 ? 'available' : remainingSeats > 0 ? 'few' : 'sold-out';
+
+                        li.innerHTML = `<a href="/reservation/select?scheduleId=${s.id}" class="${statusClass}">
+                                            ${s.startTime} ~ ${s.endTime} (${remainingSeats}석 남음)
+                                        </a>`;
+                        list.appendChild(li);
+                    });
+                }
+                section.style.display = 'block';
+            })
+            .catch(error => console.error("상영 일정 로드 실패:", error));
+    }
+</script>
+
+<style>
+    .available { background-color: #c8e6c9 !important; color: #2e7d32 !important; } /* 여유 */
+    .few { background-color: #fff9c4 !important; color: #f9a825 !important; } /* 임박 */
+    .sold-out { background-color: #ffcdd2 !important; color: #c62828 !important; pointer-events: none; opacity: 0.6; } /* 매진 (클릭 불가) */
+</style>
+</body>
+</html>

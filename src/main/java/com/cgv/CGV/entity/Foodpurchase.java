@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.Instant;
+import java.time.LocalDate;
 
 @Getter
 @Setter
@@ -31,6 +32,6 @@ public class Foodpurchase {
     private Integer amount;
 
     @Column(name = "date")
-    private Instant date;
+    private LocalDate date;
 
 }

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>영화 추가</title>
+    <script>
+        // 장르 추가
+        function addGenre() {
+            const container = document.getElementById("genre-container");
+            const input = document.createElement("input");
+            input.type = "text";
+            input.name = "genres";
+            input.placeholder = "장르";
+            input.style.display = "block";
+            container.appendChild(input);
+        }
+
+        // 감독 추가
+        function addDirector() {
+            const container = document.getElementById("director-container");
+            const input = document.createElement("input");
+            input.type = "text";
+            input.name = "directors";
+            input.placeholder = "감독명";
+            input.style.display = "block";
+            container.appendChild(input);
+        }
+    </script>
+</head>
+<body>
+<h2>영화 추가</h2>
+
+<form th:action="@{/admin/movie/create}" th:object="${form}" method="post">
+
+    <label>제목</label>
+    <input type="text" th:field="*{title}" required><br><br>
+
+    <label>설명</label><br>
+    <textarea th:field="*{description}" rows="5"></textarea><br><br>
+
+    <label>개봉일</label>
+    <input type="date" th:field="*{releaseDate}"><br><br>
+
+    <label>상영시간(분)</label>
+    <input type="number" th:field="*{runningTime}" required><br><br>
+
+    <label>관람 등급</label>
+    <input type="text" th:field="*{ageRating}"><br><br>
+
+    <label>배급사</label>
+    <input type="text" th:field="*{distributor}"><br><br>
+
+    <!-- 장르 -->
+    <h4>장르</h4>
+    <div id="genre-container">
+        <input type="text" name="genres" placeholder="장르">
+    </div>
+    <button type="button" onclick="addGenre()">장르 추가</button>
+
+    <br><br>
+
+    <!-- 감독 -->
+    <h4>감독</h4>
+    <div id="director-container">
+        <input type="text" name="directors" placeholder="감독명">
+    </div>
+    <button type="button" onclick="addDirector()">감독 추가</button>
+
+    <br><br>
+
+    <button type="submit">영화 등록</button>
+
+</form>
+
+</body>
+</html>

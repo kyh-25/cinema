@@ -19,6 +19,10 @@ public class SeatId implements Serializable {
     @Column(name = "col_no", nullable = false)
     private Integer colNo;
 
+    public SeatId() {
+
+    }
+
     public Integer getScreenId() {
         return screenId;
     }
@@ -56,6 +60,12 @@ public class SeatId implements Serializable {
     @Override
     public int hashCode() {
         return Objects.hash(screenId, rowNo, colNo);
+    }
+
+    public SeatId(Integer rowNo, Integer colNo, Integer screenId) {
+        this.rowNo = rowNo;
+        this.colNo = colNo;
+        this.screenId = screenId;
     }
 
 }
