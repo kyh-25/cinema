@@ -1,0 +1,135 @@
+CREATE TABLE User (
+    user_id        VARCHAR(50) PRIMARY KEY,
+    pw             VARCHAR(255) NOT NULL,
+    name           VARCHAR(50) NOT NULL,
+    birth          DATE NOT NULL,
+    balance      INT DEFAULT 0,
+    grade          VARCHAR(20),
+    point          INT DEFAULT 0
+);
+
+CREATE TABLE Theater (
+    theater_id     INT AUTO_INCREMENT PRIMARY KEY,
+    name           VARCHAR(100) NOT NULL,
+    address        VARCHAR(200) NOT NULL
+);
+
+CREATE TABLE Screen (
+    screen_id      INT AUTO_INCREMENT PRIMARY KEY,
+    theater_id     INT NOT NULL,
+    name           VARCHAR(50) NOT NULL,
+    total_seats    INT NOT NULL,
+    FOREIGN KEY (theater_id) REFERENCES Theater(theater_id)
+);
+
+CREATE TABLE Seat (
+    screen_id      INT NOT NULL,
+    row_no         INT NOT NULL,
+    col_no         INT NOT NULL,
+    seat_type      INT DEFAULT 0,
+    PRIMARY KEY (screen_id, row_no, col_no),
+    FOREIGN KEY (screen_id) REFERENCES Screen(screen_id)
+);
+
+CREATE TABLE Movie (
+    movie_id       INT AUTO_INCREMENT PRIMARY KEY,
+    title          VARCHAR(100) NOT NULL,
+    description    TEXT,
+    release_date   DATE,
+    running_time   INT,
+    age_rating     VARCHAR(20),
+    distributor    VARCHAR(100)
+);
+
+CREATE TABLE MovieGenre (
+    movie_id       INT NOT NULL,
+    genre          VARCHAR(50) NOT NULL,
+    PRIMARY KEY (movie_id, genre),
+    FOREIGN KEY (movie_id) REFERENCES Movie(movie_id)
+);
+
+CREATE TABLE Director (
+    movie_id       INT NOT NULL,
+    director_name  VARCHAR(50) NOT NULL,
+    PRIMARY KEY (movie_id, director_name),
+    FOREIGN KEY (movie_id) REFERENCES Movie(movie_id)
+);
+
+CREATE TABLE Schedule (
+    schedule_id    INT AUTO_INCREMENT PRIMARY KEY,
+    movie_id       INT NOT NULL,
+    screen_id      INT NOT NULL,
+    date           DATE NOT NULL,
+    start_time     TIME NOT NULL,
+    end_time     TIME NOT NULL,
+    price          INT NOT NULL,
+    FOREIGN KEY (movie_id) REFERENCES Movie(movie_id),
+    FOREIGN KEY (screen_id) REFERENCES Screen(screen_id)
+);
+
+CREATE TABLE Reservation (
+    reservation_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id        VARCHAR(50) NOT NULL,
+    schedule_id    INT NOT NULL,
+    screen_id      INT NOT NULL,
+    row_no         INT NOT NULL,
+    col_no         INT NOT NULL,
+    amount         INT NOT NULL,
+    date     DATE DEFAULT NOW(),
+    UNIQUE(schedule_id, screen_id, row_no, col_no),
+    FOREIGN KEY (user_id) REFERENCES User(user_id),
+    FOREIGN KEY (schedule_id) REFERENCES Schedule(schedule_id),
+    FOREIGN KEY (screen_id, row_no, col_no) 
+        REFERENCES Seat(screen_id, row_no, col_no)
+);
+
+CREATE TABLE WatchHistory (
+    watch_id       INT AUTO_INCREMENT PRIMARY KEY,
+    user_id        VARCHAR(50) NOT NULL,
+    movie_id       INT NOT NULL,
+    watched_date   DATE NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES User(user_id),
+    FOREIGN KEY (movie_id) REFERENCES Movie(movie_id)
+);
+
+CREATE TABLE Review (
+    movie_id       INT NOT NULL,
+    user_id        VARCHAR(50) NOT NULL,
+    content        TEXT NOT NULL,
+    rating         INT NOT NULL,
+    created_at     DATE DEFAULT NOW(),
+    PRIMARY KEY (movie_id, user_id),
+    FOREIGN KEY (movie_id) REFERENCES Movie(movie_id),
+    FOREIGN KEY (user_id) REFERENCES User(user_id)
+);
+
+CREATE TABLE Food (
+    food_id        INT AUTO_INCREMENT PRIMARY KEY,
+    name           VARCHAR(50) NOT NULL,
+    price          INT NOT NULL,
+    category       VARCHAR(30)
+);
+
+CREATE TABLE Store (
+    food_id        INT NOT NULL,
+    theater_id     INT NOT NULL,
+    stock          INT NOT NULL,
+    PRIMARY KEY (food_id, theater_id),
+    FOREIGN KEY (food_id) REFERENCES Food(food_id),
+    FOREIGN KEY (theater_id) REFERENCES Theater(theater_id)
+);
+
+CREATE TABLE FoodPurchase (
+    purchase_id    INT AUTO_INCREMENT PRIMARY KEY,
+    user_id        VARCHAR(50) NOT NULL,
+    food_id        INT NOT NULL,
+    theater_id     INT NOT NULL,
+    amount         INT NOT NULL,
+    date     DATE DEFAULT NOW(),
+    FOREIGN KEY (user_id) REFERENCES User(user_id),
+    FOREIGN KEY (food_id, theater_id) REFERENCES Store(food_id, theater_id),
+);
+
+
+
+
