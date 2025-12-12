@@ -1,0 +1,152 @@
+DELIMITER $$
+
+CREATE TRIGGER trg_schedule_set_end_time
+BEFORE INSERT ON Schedule
+FOR EACH ROW
+BEGIN
+    DECLARE run_time INT;
+
+    SELECT running_time INTO run_time
+    FROM Movie
+    WHERE movie_id = NEW.movie_id;
+
+    IF run_time IS NULL THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Invalid movie_id: running_time not found.';
+    END IF;
+
+    SET NEW.end_time = ADDTIME(NEW.start_time, SEC_TO_TIME(run_time * 60));
+END $$
+
+
+CREATE TRIGGER trg_schedule_update_end_time
+BEFORE UPDATE ON Schedule
+FOR EACH ROW
+BEGIN
+    DECLARE run_time INT;
+
+    IF NEW.movie_id <> OLD.movie_id
+        OR NEW.start_time <> OLD.start_time THEN
+
+        SELECT running_time INTO run_time
+        FROM Movie
+        WHERE movie_id = NEW.movie_id;
+
+        IF run_time IS NULL THEN
+            SIGNAL SQLSTATE '45000'
+                SET MESSAGE_TEXT = 'Invalid movie_id: running_time not found.';
+        END IF;
+
+        SET NEW.end_time = ADDTIME(NEW.start_time, SEC_TO_TIME(run_time * 60));
+
+    END IF;
+END $$
+
+DELIMITER ;
+
+
+DELIMITER $$
+
+CREATE TRIGGER trg_schedule_no_overlap_insert
+BEFORE INSERT ON Schedule
+FOR EACH ROW
+BEGIN
+    DECLARE cnt INT DEFAULT 0;
+
+    SELECT COUNT(*) INTO cnt
+    FROM Schedule
+    WHERE screen_id = NEW.screen_id
+      AND date = NEW.date
+      AND NEW.start_time < end_time
+      AND NEW.end_time > start_time;
+
+    IF cnt > 0 THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = '해당 상영관에 겹치는 상영 일정이 존재합니다.';
+    END IF;
+END $$
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE TRIGGER trg_schedule_no_overlap_update
+BEFORE UPDATE ON Schedule
+FOR EACH ROW
+BEGIN
+    DECLARE cnt INT DEFAULT 0;
+
+    SELECT COUNT(*) INTO cnt
+    FROM Schedule s
+    WHERE s.screen_id = NEW.screen_id
+      AND s.date = NEW.date
+      AND s.schedule_id <> NEW.schedule_id
+      AND NEW.start_time < s.end_time
+      AND NEW.end_time > s.start_time;
+
+    IF cnt > 0 THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = '해당 상영관에 겹치는 상영 일정이 존재합니다.';
+    END IF;
+END $$
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE TRIGGER trg_food_purchase_after_insert
+AFTER INSERT ON FoodPurchase
+FOR EACH ROW
+BEGIN
+    DECLARE current_stock INT;
+
+    -- 1. 단가 조회
+    SELECT price INTO unit_price
+    FROM Food
+    WHERE food_id = NEW.food_id;
+
+    IF unit_price IS NULL THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Food price not found.';
+    END IF;
+
+    -- 2. 결제 금액으로 구매 수량 계산
+    IF NEW.amount % unit_price != 0 THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Invalid amount: not divisible by unit price.';
+    END IF;
+
+    SET purchase_qty = NEW.amount / unit_price;
+
+    SELECT stock INTO current_stock
+    FROM Store
+    WHERE food_id = NEW.food_id
+      AND theater_id = NEW.theater_id
+    FOR UPDATE;
+
+    IF current_stock IS NULL THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'No stock entry found for this food and theater.';
+    END IF;
+
+    IF current_stock < NEW.amount THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Insufficient stock for this purchase.';
+    END IF;
+
+    SET current_stock = current_stock - NEW.amount;
+
+    IF current_stock = 0 THEN
+        DELETE FROM Store
+        WHERE food_id = NEW.food_id
+          AND theater_id = NEW.theater_id;
+    ELSE
+        UPDATE Store
+        SET stock = current_stock
+        WHERE food_id = NEW.food_id
+          AND theater_id = NEW.theater_id;
+    END IF;
+END;
+$$
+
+DELIMITER ;
