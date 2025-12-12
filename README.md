@@ -3,8 +3,11 @@
 ---
 
 프레임 워크 : spring-boot
+
 데이터 베이스: MySQL
 
 SQL 폴더 - 쿼리문
+
 src/main/java/com/cgv.CGV - 서비스
+
 src/main/resources/templates - 뷰
